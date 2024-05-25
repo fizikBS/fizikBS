@@ -1,0 +1,50 @@
+# Collatz_conjecture_25-05-2024, GitHub: fizikBS
+
+## Objectives
+
+# Write a code that for given natural number "n" calculates sequence of number until reaches the 1 (one), by rules;
+# İf number is odd 3*n+1 is applied
+# İf number is even n/2 is applied
+# Repeat Until the number reaches 1
+# Print the sequence as a list and its maximum value and number of steps to get 4-2-1 sequence
+
+#
+# The code below is ansver in Python
+#
+
+def collatz(n):
+    sequence = []  # Sequence List
+    max_value = n  # Variable for maximum value in the sequence
+    while n > 1:
+        sequence.append(n)
+        if n > max_value:
+            max_value = n  # Update the maximum value
+        if (n % 2):
+            # n is odd
+            n = 3 * n + 1
+        else:
+            # n is even
+            n = n // 2
+    sequence.append(1)
+    return sequence, max_value  # Return the sequence and the maximum value
+
+n = int(input('Enter n: '))
+sequence, max_in_sequence = collatz(n)
+print('Sequence:', sequence)
+print(f'Maximum value in the sequence: {max_in_sequence}')
+print(f'Number of steps to end is: {len(sequence) - 1}')
+
+#
+# The code Ends
+#
+
+# You may try for 5, 7 ,16, 27 and 28 gives interesting results
+# Expected Outcome for 28;
+#
+Enter n: 28
+Sequence: [28, 14, 7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]
+Maximum value in the sequence: 52
+Number of steps to end is: 18
+#
+
+Good Luck! 

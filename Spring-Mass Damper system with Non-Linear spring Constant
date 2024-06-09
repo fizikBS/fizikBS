@@ -1,1 +1,479 @@
+# BFF/ Science Out is proudly presents: For Spring-Mass Damper with Non-linear Spring Constant system; Numerical solution and Animations (version 7.0, 29.05.2024, 20.36)
+# With just in plain python 3 Google compute engine (Google Colab) and ploting modules
 
+# Marmara University, Science Faculty, Physics Department, Comp2083 Course, Final Project;
+# Azra Dila KAYA, Burak ŞENER, Zeynep KUTER
+
+
+# We are not advive that run the code in one go, you may nee just one part so we put "#####" between main parts 
+
+#Main Code
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import Image
+plt.rcParams['animation.embed_limit'] = 2**128
+
+def spr_osi(m=1.0, beta=0.2, k=2.0, alpha=0.5, x_0=0.3, v_0=0.0, t_0=0.0, dt=0.01, t_max=100, border=0.001):
+    x = [x_0]   # ini displt
+    v = [v_0]  # ini veloy
+    t = [t_0]  # ini time
+    #a_0 = -((k*x_0)/m) # ini acc.
+    acc = []   # acceleration list
+
+
+    while t[-1] < t_max:
+        a =(- (k/m) * x[-1]) - ((2*beta/m) * v[-1]) - ((alpha/m) * (x[-1]**3))
+        acc.append(a)
+
+        t_new = t[-1] + dt
+        t.append(t_new)
+
+        v_new = v[-1] + a * dt
+        v.append(v_new)
+
+        x_new = x[-1] + v_new * dt
+        x.append(x_new)
+
+        if abs(x_new) < border and abs(v_new) < border and abs(acc[-1]) < border:
+            break
+
+    if t[-1] == dt:
+        print(f"WARNING:There is not a noticeable movement for given system m={m} kg, beta={beta} kg/s, k={k} N/s, alpha={alpha} N/m³ and initial displacement x_0 = {x[0]} meter and initial velocity v_0 = {v_0 }m/s parameters")
+        print(f"You may want to try more precise grid by lowering it current grid is dt= {dt} or more giving more initial displacement current is x_0 = {x[0]} meters ")
+    else:
+        if t_new < t_max:
+            print(f"SUCCESSFUL: The system with m={m} kg, beta={beta} kg/s, k={k} N/s, alpha={alpha} N/m³ and initial displacement x_0 = {x[0]} meter and initial velocity v_0 = {v_0} m/s parameters are damped out in {round(t[-1],2)} seconds \n which is inside of the maximum given calculation time t_max = {t_max} seconds for condition 'absolute magnitude of x, v and a smaller than damped-out limit border = {border} value'")
+        else:
+            print(f"WARNING: The system with m={m} kg, beta={beta} kg/s, k={k} N/s, alpha={alpha} N/m³ and initial displacement x_0 = {x[0]} meter and initial velocity v_0 = {v_0}m/s parameters are NOT damped out \n in maximum given calculation time t_max= {t_max} seconds for condition 'absolute magnitude of x, v and a smaller than damped-out limit border = {border} value' ")
+            print(f"You may want to try different parameters or giving more time to the system by giving bigger t_max value, current t_max = {t_max} second seems to NOT enough")
+    return t, v, x, acc,m, beta, k, alpha, x_0, v_0, t_0, dt, t_max, border
+
+# Example solution with default values
+t_plt, v_plt, x_plt, acc_plt,m_out, beta_out, k_out, alpha_out, x_0_out, v_0_out, t_0_out, dt_out, t_max_out, border_out = spr_osi()
+
+# Plot of main static graph (Displacement, Velocity (m/s),Acceleration (m/s²) w.r.t Time)
+plt.figure(figsize=(10, 5))
+plt.plot(t_plt, x_plt, label='Displacement (m)')
+plt.plot(t_plt, v_plt, label='Velocity (m/s)', color='r')
+plt.plot(t_plt[1:], acc_plt, label='Acceleration (m/s²)', color='c')
+plt.xlabel('Time (s) [Duration of oscillation= %.2f s]' %( t_plt[-1]))
+#plt.xlim(-0.1,2)
+plt.ylabel('Displacement (m) / Velocity (m/s) / Acceleration (m/s²)')
+plt.title("Spring-Mass-Damper System \n : mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.4f meter, v0= %.2f m/s" %( m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+# Plot phase-space trajectory
+plt.figure(figsize=(10, 6))
+plt.plot(x_plt, v_plt, marker='', label='Phase Space Trajectory:' , color='b')
+plt.scatter(x_plt[0], v_plt[0], color='r', marker='o', label='Initial State')
+plt.scatter(x_plt[-1], v_plt[-1], color='g', marker='o', lw=1, zorder=2, label='Final State')
+plt.xlabel('Displacement (m)')
+plt.ylabel('Velocity (m/s)')
+plt.title('Phase-Space Trajectory of Spring-Mass-Damper System \n mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+#########################################################################################################################################
+#seperate static grapghics
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import Image
+plt.rcParams['animation.embed_limit'] = 2**128
+
+
+# Example solution with default values
+t_plt, v_plt, x_plt, acc_plt,m_out, beta_out, k_out, alpha_out, x_0_out, v_0_out, t_0_out, dt_out, t_max_out, border_out = spr_osi()
+
+plt.figure(figsize=(10, 5))
+plt.plot(t_plt, x_plt, label='Displacement (m)')
+plt.xlabel('Time (s)')
+plt.ylabel('Displacement (m)')
+plt.title("Spring-Mass-Damper System \n : mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s" %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+#
+plt.figure(figsize=(10, 5))
+plt.plot(t_plt, v_plt, label='Velocity (m/s):', color='r')
+plt.xlabel('Time (s)')
+plt.ylabel('Velocity (m/s)')
+plt.title("Spring-Mass-Damper System \n : mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s" %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+#
+plt.figure(figsize=(10, 5))
+plt.plot(t_plt[1:], acc_plt, label='Acceleration (m/s²)', color='c')
+plt.xlabel('Time (s)')
+plt.ylabel('Acceleration (m/s²)')
+plt.title("Spring-Mass-Damper System \n : mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s" %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out) )
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+
+#########################################################################################################################################
+# Main animation
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import Image
+plt.rcParams['animation.embed_limit'] = 2**128
+
+
+# Example solution with default values
+t_plt, v_plt, x_plt, acc_plt,m_out, beta_out, k_out, alpha_out, x_0_out, v_0_out, t_0_out, dt_out, t_max_out, border_out = spr_osi()
+
+# Reduce the number of frames by skipping every 3 frame (4 in one is in use) to reduce compute time. It doesn't make a noticeable difference since we have 6000 element for each minute of simulation
+# Since we have 6000 elements (dt=0.01) for each minute of simulation, using 1500 of them makes 25 fps (frames per second), which is above the human eye's threshold.
+
+t_plt = t_plt[::4]
+v_plt = v_plt[::4]
+x_plt = x_plt[::4]
+acc_plt = acc_plt[::4]
+
+# Creating the animation
+fig, ax = plt.subplots(figsize=(10, 8))
+
+ax.set_xlabel("Time (s)")
+ax.set_xlim(0, max(t_plt))
+ax.set_ylim(min(min(x_plt), min(v_plt), min(acc_plt)), max(max(x_plt), max(v_plt), max(acc_plt)))
+ax.set_title('Displacement, Velocity, and Acceleration over Time \n mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+line1, = ax.plot([], [], 'b', label='Displacement (m)')
+line2, = ax.plot([], [], 'r', label='Velocity (m/s)')
+line3, = ax.plot([], [], 'c', label='Acceleration (m/s²)')
+#ax.text(0.5, 0.1, 'mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out),  horizontalalignment='center' ,verticalalignment='center', transform=ax.transAxes)
+ax.legend()
+ax.grid()
+
+plt.tight_layout()
+
+def init():
+    line1.set_data([], [])
+    line2.set_data([], [])
+    line3.set_data([], [])
+    return line1, line2, line3
+
+def update(frame):
+    line1.set_data(t_plt[:frame], x_plt[:frame])
+    line2.set_data(t_plt[:frame], v_plt[:frame])
+    line3.set_data(t_plt[:frame], acc_plt[:frame])
+    return line1, line2, line3
+
+ani = animation.FuncAnimation(fig, update, frames=len(t_plt), init_func=init, blit=True, interval=10)
+
+
+
+# To save the animation as an MP4 file
+FFMpegWriter = animation.writers['ffmpeg']
+writer = FFMpegWriter(fps=30, metadata=dict(artist='İstanbul, Türkiye, Marmara Üniversitesi, Comp2083 dersi 2024 Final Projesi, Spring-mass damper with non linear spring constant:  Burak ŞENER, Azra Dila KAYA, Zeynep KUTER. Tarih: Mayıs 2024'), bitrate=1800)
+ani.save('animation_fullv7.mp4', writer=writer)
+
+# Download the animation file
+from google.colab import files
+files.download('animation_fullv7.mp4')
+
+# Animation show function in colab
+#( Be carefull!!! run time gets too long just for create and dowland takes 3 minnutes for each a minute of simulation and the show function may take +10 minutes on google-colab)
+# if you are okey to run time(+15 minutes) you can add or open dellete '#' these three lines and may !!!! add for each simulation to want to see in total
+# even do you don't open you will se end frame of the simulation, here below java and HTML lines can be oppend for this simulation
+
+# from IPython.display import HTML
+# ani_showterer = ani.to_jshtml()
+# HTML(ani_showterer)
+
+#########################################################################################################################################
+# seperate animations 
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import Image
+plt.rcParams['animation.embed_limit'] = 2**128
+
+# Example solution with default values
+t_plt, v_plt, x_plt, acc_plt,m_out, beta_out, k_out, alpha_out, x_0_out, v_0_out, t_0_out, dt_out, t_max_out, border_out = spr_osi()
+
+# Reduce the number of frames by skipping every 3 frame (4 in one is in use) to reduce compute time. It doesn't make a noticeable difference since we have 6000 element for each minute of simulation
+# Since we have 6000 elements (dt=0.01) for each minute of simulation, using 1500 of them makes 25 fps (frames per second), which is above the human eye's threshold.
+t_plt = t_plt[::4]
+v_plt = v_plt[::4]
+x_plt = x_plt[::4]
+acc_plt = acc_plt[::4]
+
+# Update the animation for velocity
+def update_vel(frame):
+    line_vel.set_data(t_plt[:frame], v_plt[:frame])
+    return line_vel,
+
+def update_disp_time(frame):
+    line_disp_time.set_data(t_plt[:frame], x_plt[:frame])
+    return line_disp_time,
+
+# Set up the figure and axis for standard displacement vs. time animation
+fig_disp_time, ax_disp_time = plt.subplots(figsize=(8, 4))
+ax_disp_time.set_xlabel("Time (s)")
+ax_disp_time.set_xlim(0, max(t_plt))
+ax_disp_time.set_ylim(min(x_plt), max(x_plt))
+ax_disp_time.set_title('Displacement vs.Time Animation \n mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s,\n x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+#ax_disp_time.text(0.3, 0.05, 'mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.4f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out),  horizontalalignment='center' ,verticalalignment='center', transform=ax.transAxes)
+# Plot the standard displacement vs. time animation
+line_disp_time, = ax_disp_time.plot([], [], 'b', label='Displacement (m)')
+ax_disp_time.legend()
+
+# Function to initialize the standard displacement vs. time animation
+def init_disp_time():
+    line_disp_time.set_data([], [])
+    return line_disp_time,
+
+# Create the standard displacement vs. time animation
+ani_disp_time = animation.FuncAnimation(fig_disp_time, update_disp_time, frames=len(t_plt), init_func=init_disp_time, blit=True, interval=10)
+
+# Save the standard displacement vs. time animation as an MP4 file
+ani_disp_time.save('displacement_time_animationv7.mp4', writer=writer)
+
+# Download the standard displacement vs. time animation file
+files.download('displacement_time_animationv7.mp4')
+
+
+# Set up the figure and axis for velocity animation
+fig_vel, ax_vel = plt.subplots(figsize=(8, 4))
+ax_vel.set_xlabel("Time (s)")
+ax_vel.set_xlim(0, max(t_plt))
+ax_vel.set_ylim(min(v_plt), max(v_plt))
+ax_vel.set_title('Velocity Animation \n mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s,\n x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+#ax_vel.text(0.3, 0.05, 'mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out),  horizontalalignment='center' ,verticalalignment='center', transform=ax.transAxes)
+# Plot the velocity animation
+line_vel, = ax_vel.plot([], [], 'r', label='Velocity (m/s)')
+ax_vel.legend()
+
+# Function to initialize the velocity animation
+def init_vel():
+    line_vel.set_data([], [])
+    return line_vel,
+
+# Create the velocity animation
+ani_vel = animation.FuncAnimation(fig_vel, update_vel, frames=len(t_plt), init_func=init_vel, blit=True, interval=10)
+
+# Save the velocity animation as an MP4 file
+ani_vel.save('velocity_animationv7.mp4', writer=writer)
+
+# Download the velocity animation file
+files.download('velocity_animationv7.mp4')
+
+# Function to update the animation for acceleration
+def update_acc(frame):
+    line_acc.set_data(t_plt[:frame], acc_plt[:frame])
+    return line_acc,
+
+# Set up the figure and axis for acceleration animation
+fig_acc, ax_acc = plt.subplots(figsize=(8, 4))
+ax_acc.set_xlabel("Time (s)")
+ax_acc.set_xlim(0, max(t_plt))
+ax_acc.set_ylim(min(acc_plt), max(acc_plt))
+ax_acc.set_title('Acceleration Animation \n mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s,\n x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+#ax_acc.text(0.3, 0.05, 'mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out),  horizontalalignment='center' ,verticalalignment='center', transform=ax.transAxes)
+# Plot the acceleration animation
+line_acc, = ax_acc.plot([], [], 'c', label='Acceleration (m/s²)')
+ax_acc.legend()
+
+# Function to initialize the acceleration animation
+def init_acc():
+    line_acc.set_data([], [])
+    return line_acc,
+
+# Create the acceleration animation
+ani_acc = animation.FuncAnimation(fig_acc, update_acc, frames=len(t_plt), init_func=init_acc, blit=True, interval=10)
+
+# Save the acceleration animation as an MP4 file
+ani_acc.save('acceleration_animationv7.mp4', writer=writer)
+
+# Download the acceleration animation file
+files.download('acceleration_animationv7.mp4')
+
+# unless you add mentioned HTML lines to code you will have just the dowlanded videos
+
+# Animation show function in colab
+#( Be carefull!!! run time gets too long just for create and dowland takes 3 minnutes for each a minute of simulation and the show function may take +10 minutes on google-colab)
+# if you are okey to run time(+15 minutes) you can add or open dellete '#' these three lines and may !!!! add for each simulation to want to see in total
+# even do you don't open you will se end frame of the simulation, here below java and HTML lines can be oppend for this simulation
+
+# from IPython.display import HTML
+# ani_showterer = ani.to_jshtml()
+# HTML(ani_showterer)
+
+
+##############################################################################################################
+
+#line graph 
+
+
+# Example solution with default values
+t_plt, v_plt, x_plt, acc_plt,m_out, beta_out, k_out, alpha_out, x_0_out, v_0_out, t_0_out, dt_out, t_max_out, border_out = spr_osi()
+
+# Reduce the number of frames by skipping every 3 frame (4 in one is in use) to reduce compute time. It doesn't make a noticeable difference since we have 6000 element for each minute of simulation
+# Since we have 6000 elements (dt=0.01) for each minute of simulation, using 1500 of them makes 25 fps (frames per second), which is above the human eye's threshold.
+
+t_plt = t_plt[::4]
+v_plt = v_plt[::4]
+x_plt = x_plt[::4]
+acc_plt = acc_plt[::4]
+
+def update(frame):
+    spring.set_data([0, x_plt[frame]], [0, 0])  # Update spring
+    mass.set_data(x_plt[frame], 0)  # Update mass
+    return spring, mass
+
+# Set up the figure and axis for Spring_mass Damper
+fig_disp, ax_disp = plt.subplots(figsize=(8, 4))
+ax_disp.set_xlim(-max(x_plt),max(x_plt))
+ax_disp.set_ylim(-1, 1)
+ax_disp.set_xlabel("Displacement on x-direction (m)")
+ax_disp.set_ylabel("Displacement on y-direction (m)")
+ax_disp.set_title('Spring-mass Damper wtih Non-Linear spring Animation \n mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s,\n x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out))
+#ax_disp.text(0.3, 0.05, 'mass= %.2f kg ,beta= %.2f kg/s, alpha= %.2f N/m³ ,k= %.2f  N/s, x0= %.2f meter, v0= %.2f m/s' %(m_out, beta_out, alpha_out, k_out, x_0_out, v_0_out),  horizontalalignment='center' ,verticalalignment='center', transform=ax.transAxes)
+# Plot the spring for Spring_mass Damper Animation
+spring, = ax_disp.plot([], [], 'b-', lw=2)
+
+# Plot the mass for Spring_mass Damper Animation
+mass, = ax_disp.plot([], [], 'ro', markersize=10)
+
+# Function to initialize the Spring_mass Damper Animation
+def init_disp():
+    spring.set_data([], [])
+    mass.set_data([], [])
+    return spring, mass
+
+# Create the Spring_mass Damper Animation
+ani_disp = animation.FuncAnimation(fig_disp, update, frames=len(t_plt), init_func=init_disp, blit=True, interval=10)
+
+# Save the Spring_mass Damper Animation as an MP4 file
+ani_disp.save('Spring_mass Damper Animationv7.mp4', writer=writer)
+
+# Display the Spring_mass Damper Animation
+plt.show()
+
+# Download the Spring_mass Damper Animation file
+from google.colab import files
+files.download('Spring_mass Damper Animationv7.mp4')
+
+# unless you add mentioned HTML lines to code you will have just the dowlanded videos
+
+# Animation show function in colab
+#( Be carefull!!! run time gets too long just for create and dowland takes 3 minutes for each a minute of simulation and the show function may take +10 minutes on google-colab)
+# if you are okey to run time(+15 minutes) you can add or open dellete '#' these three lines and may !!!! add for each simulation to want to see in total
+# even do you don't open you will se end frame of the simulation, here below java and HTML lines can be oppend for this simulation
+
+# from IPython.display import HTML
+# ani_showterer_disp = ani_disp.to_jshtml()
+# HTML(ani_showterer_disp)
+
+
+########################################################################################################################
+
+#simulation for title gif
+## !!!!!!!!!!!!!!!!matplotlib Line 2D that used in simuating spring image interrups our static graphs so its only used for this spesific animation
+## is only used for this spring animation is NOT used in any calculatios for lists graphs or solutions ,
+
+# # lists and solutions are calculated in pure python 3.0 with just while loop, appeded lists anf if bloks. Numerical Solution is NOT contanins any form of preset calcutor
+# # Main code can be check to see it just has matplotlib modules for static graphs
+
+#these 4 lines below requaries to open to run that cell
+
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D                # is only used for this spring animation;  is NOT used in any calculatios or creating list for solution
+from matplotlib.animation import FuncAnimation
+from matplotlib.transforms import Affine2D         # is only used for this spring animation is NOT used in any calculatios for lists.
+
+
+t_plt, v_plt, x_plt, acc_plt, m_out, beta_out, k_out, alpha_out, x_0_out, v_0_out, t_0_out, dt_out, t_max_out, border_out = spr_osi(x_0=2, border=0.5, beta=0.1, k=5)
+
+# Reduce the number of frames by skipping every 3rd frame
+t_plt = t_plt[::4]
+v_plt = v_plt[::4]
+x_plt = x_plt[::4]
+acc_plt = acc_plt[::4]
+
+# Plot of main static graph (Displacement, Velocity, Acceleration w.r.t Time)
+plt.figure(figsize=(10, 5))
+plt.plot(t_plt, x_plt, label='Displacement (m)')
+plt.plot(t_plt, v_plt, label='Velocity (m/s)', color='r')
+plt.plot(t_plt, acc_plt, label='Acceleration (m/s²)', color='c')
+plt.xlabel(f'Time (s) [Duration of oscillation= {t_plt[-1]:.2f} s]')
+plt.ylabel('Displacement (m) / Velocity (m/s) / Acceleration (m/s²)')
+plt.title(f"Spring-Mass-Damper System \n : mass= {m_out:.2f} kg ,beta= {beta_out:.2f} kg/s, alpha= {alpha_out:.2f} N/m³ ,k= {k_out:.2f} N/s, x0= {x_0_out:.4f} meter, v0= {v_0_out:.2f} m/s")
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+fig = plt.figure(figsize=(10, 5))
+ax = fig.add_subplot(aspect='equal')
+ax.set_xlim(-5, 0)
+ax.set_ylim(-1, 1)
+
+# Generate a spring with "n" interior points, starting at (0,0) and ending at (-1,0)
+# Spring has a width of 2/(2n)
+def generate_spring(n):
+    data_x = [0] * (n + 2)
+    data_y = [0] * (n + 2)
+    data_x[-1] = -1
+    for i in range(1, n + 1):
+        data_y[i] = -1 / (2 * n) if i % 2 else 1 / (2 * n)
+        data_x[i] = -(2 * i - 1) / (2 * n)
+    return data_x, data_y
+
+# Put the (x,y) coordinates of the spring into lists
+data_x, data_y = generate_spring(30)
+
+# ell is the unstretched spring length
+ell = 2
+x0 = -(ell + x_0_out)
+spring = Line2D(data_x, data_y, color='r')
+circle = ax.add_patch(plt.Circle((x0, 0), 0.25, fc='b', zorder=3))
+ax.add_line(spring)
+
+# Annotate time in the right corner inside the plot area
+time_text = ax.text(0.95, 0.95, '', transform=ax.transAxes, ha='right', va='top')
+
+# Animate each frame "i"
+def animate(i):
+    x = -(ell + x_plt[i])
+    circle.set_center((x, 0))
+
+    # Stretch the spring in the X direction
+    stretch_factor = -x
+
+    # The 8 is an arbitrary scalar. Feel free to change
+    A = [[stretch_factor, 0, 0], [0, 8 / stretch_factor, 0], [0, 0, 1]]
+    data_new_x = [A[0][0] * x + A[0][1] * y + A[0][2] for x, y in zip(data_x, data_y)]
+    data_new_y = [A[1][0] * x + A[1][1] * y + A[1][2] for x, y in zip(data_x, data_y)]
+
+    # Update the spring
+    spring.set_data(data_new_x, data_new_y)
+
+    # Update the time annotation
+    time_text.set_text(f'Time: {t_plt[i]:.2f} s')
+
+fps = 24
+# Save the animation as an MP4 file: 24 fps
+ani = FuncAnimation(fig, animate, frames=len(t_plt))
+ffmpeg_writer = animation.FFMpegWriter(fps=fps)
+ani.save('spring_mass_affine_horizontal.mp4', writer=ffmpeg_writer)
+
+from google.colab import files
+files.download('spring_mass_affine_horizontal.mp4')
+
+# unless you run mentioned HTML lines to code you will have just the downloaded MP4 file
+# If you want to see in google colab you may run after this cell is done, that 3 lines below
+
+###############################################################################################################
